@@ -2,7 +2,8 @@
 
 from ConfigParser import SafeConfigParser, NoOptionError
 from optparse import OptionParser
-import sys, os
+import sys
+import os
 
 usage = "usage: %prog [options] query"
 parser = OptionParser(usage=usage)
@@ -67,7 +68,7 @@ c = con.cursor()
 result = c.execute(query)
 
 if result or c.rowcount > 0:
-   print delimiter.join(map(str, map(lambda x: x[0], c.description)))
+    print delimiter.join(map(str, map(lambda x: x[0], c.description)))
     for row in c.fetchall():
         print delimiter.join(map(str, row))
 else:
