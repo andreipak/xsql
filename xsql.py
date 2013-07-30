@@ -66,18 +66,18 @@ else:
 c = con.cursor()
 result = c.execute(query)
 
-if c.rowcount > 0:
-    print delimiter.join(map(str, map(lambda x: x[0], c.description)))
+if result or c.rowcount > 0:
+   print delimiter.join(map(str, map(lambda x: x[0], c.description)))
     for row in c.fetchall():
         print delimiter.join(map(str, row))
 else:
     print "empty set."
 
-    try:
-        if config.get(section, 'commit').lower() in ("1", "true"):
-            con.commit()
-    except NoOptionError:
-        pass
+try:
+    if config.get(section, 'commit').lower() in ("1", "true"):
+        con.commit()
+except NoOptionError:
+    pass
 
 c.close()
 con.close()
