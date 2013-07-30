@@ -2,7 +2,7 @@
 
 from ConfigParser import SafeConfigParser, NoOptionError
 from optparse import OptionParser
-import sys
+import sys, os
 
 usage = "usage: %prog [options] query"
 parser = OptionParser(usage=usage)
@@ -21,19 +21,10 @@ parser.add_option("-s", "--section",
 configfile = opt.configfile
 
 config = SafeConfigParser()
-config.read(configfile)
+config.read([configfile, os.path.expanduser('~/.xsql.cfg')])
 
-section = opt.section
-if section is None:
-    try:
-        section = config.sections()[0]
-    except IndexError, e:
-        print "Can not read first section from %s" % configfile
-        sys.exit(1)
-
-
+section = opt.section or "default"
 module = config.get(section, 'module')
-
 
 db_mod = __import__(module)
 if hasattr(db_mod, 'connect'):
@@ -75,7 +66,18 @@ else:
 c = con.cursor()
 result = c.execute(query)
 
-if result and query.lower().startswith('select'):
+if c.rowcount > 0:
     print delimiter.join(map(str, map(lambda x: x[0], c.description)))
     for row in c.fetchall():
         print delimiter.join(map(str, row))
+else:
+    print "empty set."
+
+    try:
+        if config.get(section, 'commit').lower() in ("1", "true"):
+            con.commit()
+    except NoOptionError:
+        pass
+
+c.close()
+con.close()
