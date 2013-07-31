@@ -14,8 +14,8 @@ parser.add_option("-c", "--configfile",
 
 parser.add_option("-s", "--section",
                   default="default",
-                  help="section name in configuration file"
-                  " [default: %default]")
+                  help="section name in configuration file "
+                  "[default: %default]")
 
 (opt, args) = parser.parse_args()
 
