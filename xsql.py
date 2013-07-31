@@ -8,14 +8,14 @@ import os
 usage = "usage: %prog [options] query"
 parser = OptionParser(usage=usage)
 parser.add_option("-c", "--configfile",
-                  metavar="CONFIG",
-                  default="xsql.cfg",
+                  default="./xsql.cfg",
                   help="configuration file path"
                   " [default: %default]")
 
 parser.add_option("-s", "--section",
-                  help="section name in configuration file, "
-                  "default: first section")
+                  default="default",
+                  help="section name in configuration file"
+                  " [default: %default]")
 
 (opt, args) = parser.parse_args()
 
@@ -24,7 +24,7 @@ configfile = opt.configfile
 config = SafeConfigParser()
 config.read([configfile, os.path.expanduser('~/.xsql.cfg')])
 
-section = opt.section or "default"
+section = opt.section
 module = config.get(section, 'module')
 
 db_mod = __import__(module)
@@ -65,14 +65,14 @@ else:
         sys.exit(1)
 
 c = con.cursor()
+
 result = c.execute(query)
 
-if result or c.rowcount > 0:
-    print delimiter.join(map(str, map(lambda x: x[0], c.description)))
+if c.rowcount > 0 or result:
+    if c.description:
+        print delimiter.join(map(str, map(lambda x: x[0], c.description)))
     for row in c.fetchall():
         print delimiter.join(map(str, row))
-else:
-    print "empty set."
 
 try:
     if config.get(section, 'commit').lower() in ("1", "true"):
